@@ -1,0 +1,13 @@
+*.idea
+*__pycache__/
+target/
+*.pyc
+classes/
+checkouts
+*.jar
+*.class
+.lein-*
+.nrepl-port
+.hgignore
+.hg
+*.iml

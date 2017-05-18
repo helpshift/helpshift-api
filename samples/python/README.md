@@ -1,0 +1,31 @@
+# Python Helpshift API Sample Code
+
+This projects contains the sample code for using Helpshift API to create issue and
+add message with attachment in Python.
+
+## Setup and Usage Instructions
+
+1. To use the sample code, Python 2 should be installed.
+
+2. Install the project dependencies using below command.
+   ```
+   pip install -r requirements.txt
+   ```
+
+3. Retrieve your [Helsphift API key](https://success.helpshift.com/a/success-center/?p=web&s=premium-features&f=managing-your-api-keys).
+
+4. Replace DOMAIN, API_KEY, ATTACHMENT_FILE_PATH and TEST_PAYLOAD in
+   [create_issue_with_attachment.py](./create_issue_with_attachment.py) and
+   [add_message_with_attachment.py](./add_message_with_attachment.py) with actual values.
+   - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/)
+   for API parameters.
+
+5. Create issue by using following command and note the issue_id.
+   ```
+   python create_issue_with_attachment.py
+   ```
+
+6. Add message to issue using following command. This script accepts an issue_id.
+   ```
+   python add_message_with_attachment.py <ISSUE_ID>
+   ```
