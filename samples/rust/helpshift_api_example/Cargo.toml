@@ -1,5 +1,5 @@
 [package]
-name = "rust_api_example"
+name = "helpshift_api_example"
 version = "0.1.0"
 authors = ["Samuel Chase <samuel@helpshift.com>"]
 

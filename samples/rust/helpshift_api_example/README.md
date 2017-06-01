@@ -12,5 +12,5 @@ This project contains the sample code for using Helpshift API to create an issue
 
 3. Run the executable binary by:
    ```
-   $ ./target/debug/rust_api_example
+   $ ./target/debug/helpshift_api_example
    ```

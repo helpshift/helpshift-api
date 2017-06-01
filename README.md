@@ -10,7 +10,7 @@ This project provide the sample code for using [Helpshift API](https://apidocs.h
     - [Java](samples/java/src/main/java/com/helpshift/CreateIssueWithAttachment.java)
     - [Python](samples/python/create_issue_with_attachment.py)
     - [Clojure](samples/clojure/api-sample-code/src/api_sample_code/create_issue_with_attachment.clj)
-    - [Rust](samples/rust_api_example/src/main.rs)
+    - [Rust](samples/rust/helpshift_api_example/src/main.rs)
 
 2. Add Message to an Issue with an Attachment
 
