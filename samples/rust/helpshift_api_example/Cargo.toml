@@ -1,0 +1,9 @@
+[package]
+name = "helpshift_api_example"
+version = "0.1.0"
+authors = ["Samuel Chase <samuel@helpshift.com>"]
+
+[dependencies]
+curl = "0.4.6"
+base64 = "0.5.2"
+serde_json = "1.0.2"
