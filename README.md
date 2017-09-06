@@ -18,6 +18,10 @@ This project provide the sample code for using [Helpshift API](https://apidocs.h
     - [Python](samples/python/add_message_with_attachment.py)
     - [Clojure](samples/clojure/api-sample-code/src/api_sample_code/add_message_with_attachment.clj)
 
+3. Export all Issues and Messages to CSV files
+    - [Java](samples/java/src/main/java/com/helpshift/ExportIssuesInCsv.java)
+    - [Python](samples/python/export_issues_in_csv.py)
+
 ## License
 
 ```
@@ -43,5 +47,7 @@ limitations under the License.
 |[Unirest](http://unirest.io/java.html)| [MIT License](https://tldrlegal.com/license/mit-license) | (c) 2013-2015 Mashape |
 |[Requests](http://docs.python-requests.org/en/master/)| [Requests License](http://docs.python-requests.org/en/master/user/intro/#requests-license) | (c) 2013 Kenneth Reitz |
 |[Http-kit](http://www.http-kit.org/)| [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) | (c) 2012-2016 Feng Shen |
+|[CSV](https://docs.python.org/2/library/csv.html)| - | - |
+|[Lang3](https://commons.apache.org/proper/commons-lang/)| [Apache License Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) | (c) 2001–2017 The Apache Software Foundation |
 
 ###### Contact <a href="https://support.helpshift.com" target="_blank"> Helpshift Support </a> for any issues and more details.
