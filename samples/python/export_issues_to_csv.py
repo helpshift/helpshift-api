@@ -18,10 +18,18 @@ POINTS TO NOTE:
 - Please refer the documentation for the complete response structure.
 '''
 
-
 if __name__ == "__main__":
 
     api_endpoint = "https://api.helpshift.com/v1/" + DOMAIN + "/issues?page-size=1000&"
+
+    '''
+    Example API with some filters:
+        sort-by creation-time, issue state is new, response includes meta
+            "https://api.helpshift.com/v1/" + DOMAIN +
+            "/issues?sort-by=creation-time&state=%5B%22new%22%5D&includes=%5B%22meta%22%5D&page-size=1000&"
+
+    Please refer the documentation to add filters to GET /issues API as required.
+    '''
 
     with open(ISSUES_FILE_LOC, 'wb') as issues_file, open(MESSAGES_FILE_LOC, 'wb') as messages_file:
 
@@ -45,16 +53,28 @@ if __name__ == "__main__":
 
             resp = response.json()
             if resp['total-pages'] < current_page:
+                print ("Export completed. Total number of pages: " + str(current_page - 1))
                 break
 
             for issue in resp['issues']:
-                issue_writer.writerow(dict(issue,
-                                           state=issue['state_data']['state'],
-                                           tags=', '.join(issue['tags']),
-                                           changed_at=issue['state_data']['changed_at']))
+                try:
+                    '''
+                    Certain string fields that may contain non-ASCII characters have to be explicitly encoded for csv writer
+                    '''
+                    assignee_name = issue['assignee_name'].encode("utf-8") if issue['assignee_name'] else ""
+                    issue_writer.writerow(dict(issue,
+                                               assignee_name=assignee_name,
+                                               title=issue.get('title',"").encode("utf-8"),
+                                               state=issue['state_data']['state'],
+                                               tags=', '.join(issue['tags']),
+                                               changed_at=issue['state_data']['changed_at']))
 
-                for message in issue['messages']:
-                    message_writer.writerow(dict(issue_id=issue['id'],
-                                                 body=message['body'],
-                                                 author=message['author']['name'],
-                                                 attachment=message.get('attachment', {}).get('file_name')))
+                    for message in issue['messages']:
+                        message_writer.writerow(dict(issue_id=issue['id'],
+                                                     body=message['body'].encode("utf-8"),
+                                                     author=message['author']['name'].encode("utf-8"),
+                                                     attachment=message.get('attachment', {}).get('file_name')))
+                except Exception as ee:
+                    print ("Exception for Issue ID: " + str(issue['id']))
+                    print (ee)
+                    pass

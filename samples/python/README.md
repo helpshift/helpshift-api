@@ -17,9 +17,9 @@ add message with attachment, and export API response to csv files in Python.
 4. Replace DOMAIN, API_KEY, ATTACHMENT_FILE_PATH, TEST_PAYLOAD, ISSUE_FILE_LOCATION and MESSAGES_FILE_LOCATION, as required, in
    [create_issue_with_attachment.py](./create_issue_with_attachment.py) ,
    [add_message_with_attachment.py](./add_message_with_attachment.py) and
-   [export_issues_in_csv.py](./export_issues_in_csv.py) with actual values.
+   [export_issues_to_csv.py](./export_issues_to_csv.py) with actual values.
    - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/)
-   for API parameters. Refer the documentation to add filters to GET /issues API as required.
+   for API parameters.
 
 5. Create issue by using following command and note the issue_id.
    ```
@@ -33,5 +33,5 @@ add message with attachment, and export API response to csv files in Python.
 
 7. Export all issues and messages into separate files using following command.
    ```
-   python export_issues_in_csv.py
+   python export_issues_to_csv.py
    ```

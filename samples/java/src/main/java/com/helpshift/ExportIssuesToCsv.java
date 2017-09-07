@@ -8,13 +8,22 @@ import java.io.*;
 import org.apache.commons.lang3.StringUtils;
 
 
-public class ExportIssuesInCsv {
+public class ExportIssuesToCsv {
 
 
     public JSONObject GetIssues (String domain, String api_key, int page) {
 
         try {
             String api_endpoint = "https://api.helpshift.com/v1/" + domain + "/issues?page-size=1000&page=" + page;
+
+            /*
+            * Example API with some filters:
+                sort-by creation-time, issue state is new, response includes meta
+                "https://api.helpshift.com/v1/" + domain +
+                "/issues?sort-by=creation-time&state=%5B%22new%22%5D&includes=%5B%22meta%22%5D&page-size=1000&"
+
+            * Please refer the documentation to add filters to GET /issues API as required.
+            * */
 
             HttpResponse<String> response = Unirest.get(api_endpoint)
                     .basicAuth(api_key, "")
@@ -60,10 +69,16 @@ public class ExportIssuesInCsv {
                 current_page++;
                 JSONObject resp = GetIssues(domain, api_key, current_page);
                 if (resp.getInt("total-pages") < current_page) {
+                    System.out.println("Export completed. Total number of pages: " + (current_page - 1));
                     break;
                 }
 
-                // Rename issue fields in response json to CSV column names
+                /*
+                * The response will contain issue details in nested json structure.
+                * Below code will flatten the structure by extracting fields as required.
+                * The json keys are the names of columns in the output issue CSV file.
+                * */
+
                 JSONArray issues = resp.getJSONArray("issues");
                 for (int i = 0 ; i < issues.length() ; i++) {
                     JSONObject issue = issues.getJSONObject(i);
@@ -71,7 +86,10 @@ public class ExportIssuesInCsv {
                     issues.getJSONObject(i).put("state",  state_data.get("state"));
                     issues.getJSONObject(i).put("changed_at",  state_data.get("changed_at"));
 
-                    // Rename message fields for each issue
+                    /*
+                    * Destructuring message json and renaming keys to columns of output message CSV file.
+                    * */
+
                     JSONArray messages = issue.getJSONArray("messages");
                     for (int j = 0 ; j < messages.length() ; j++) {
                         JSONObject message = messages.getJSONObject(j);
@@ -81,6 +99,14 @@ public class ExportIssuesInCsv {
                             messages.getJSONObject(j).put("attachment", message.getJSONObject("attachment").get("file_name"));
                         }
                     }
+
+                    /*
+                    * CDL provides support for converting between JSON and comma delimited lists.
+                    * Given the column names and array of json objects with columns as keys,
+                    * it returns comma delimited text mapped to columns.
+                    * For more details, refer https://github.com/vogella/org.json/blob/master/src/org/json/CDL.java
+                    * */
+
                     pwm.print(CDL.toString(message_fields, messages));
                 }
                 pw.print(CDL.toString(issue_fields, issues));
@@ -114,7 +140,7 @@ public class ExportIssuesInCsv {
         String issues_file_location = "<ISSUES_FILE_LOCATION>/issues.csv";
         String messages_file_location = "<MESSAGES_FILE_LOCATION>/messages.csv";
 
-        ExportIssuesInCsv exportIssuesInCsv = new ExportIssuesInCsv();
-        exportIssuesInCsv.getAndSaveToCsv(domain, api_key, issues_file_location, messages_file_location);
+        ExportIssuesToCsv exportIssuesToCsv = new ExportIssuesToCsv();
+        exportIssuesToCsv.getAndSaveToCsv(domain, api_key, issues_file_location, messages_file_location);
     }
 }
