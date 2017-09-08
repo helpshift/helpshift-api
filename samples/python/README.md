@@ -1,7 +1,7 @@
 # Python Helpshift API Sample Code
 
-This projects contains the sample code for using Helpshift API to create issue and
-add message with attachment in Python.
+This projects contains the sample code for using Helpshift API to create an issue,
+add message with attachment, and export API response to csv files in Python.
 
 ## Setup and Usage Instructions
 
@@ -14,9 +14,10 @@ add message with attachment in Python.
 
 3. Retrieve your [Helsphift API key](https://success.helpshift.com/a/success-center/?p=web&s=premium-features&f=managing-your-api-keys).
 
-4. Replace DOMAIN, API_KEY, ATTACHMENT_FILE_PATH and TEST_PAYLOAD in
-   [create_issue_with_attachment.py](./create_issue_with_attachment.py) and
-   [add_message_with_attachment.py](./add_message_with_attachment.py) with actual values.
+4. Replace DOMAIN, API_KEY, ATTACHMENT_FILE_PATH, TEST_PAYLOAD, ISSUE_FILE_LOCATION and MESSAGES_FILE_LOCATION, as required, in
+   [create_issue_with_attachment.py](./create_issue_with_attachment.py) ,
+   [add_message_with_attachment.py](./add_message_with_attachment.py) and
+   [export_issues_to_csv.py](./export_issues_to_csv.py) with actual values.
    - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/)
    for API parameters.
 
@@ -28,4 +29,9 @@ add message with attachment in Python.
 6. Add message to issue using following command. This script accepts an issue_id.
    ```
    python add_message_with_attachment.py <ISSUE_ID>
+   ```
+
+7. Export all issues and messages into separate files using following command.
+   ```
+   python export_issues_to_csv.py
    ```
