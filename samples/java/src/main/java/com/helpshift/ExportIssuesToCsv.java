@@ -5,16 +5,18 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.*;
 import java.io.*;
+import java.util.Calendar;
 import org.apache.commons.lang3.StringUtils;
 
 
 public class ExportIssuesToCsv {
 
 
-    public JSONObject GetIssues (String domain, String api_key, int page) {
+    public JSONObject GetIssues (String domain, String api_key, int page, long created_since) {
 
         try {
-            String api_endpoint = "https://api.helpshift.com/v1/" + domain + "/issues?page-size=1000&page=" + page;
+            String api_endpoint = "https://api.helpshift.com/v1/" + domain + "/issues?page-size=1000&created_since=" +
+                    created_since + "&page=" + page;
 
             /*
             * Example API with some filters:
@@ -45,7 +47,8 @@ public class ExportIssuesToCsv {
         }
     }
 
-    public void getAndSaveToCsv(String domain, String api_key, String issues_file_loc, String messages_file_loc) {
+    public void getAndSaveToCsv(String domain, String api_key, String issues_file_loc, String messages_file_loc,
+                                long created_since) {
 
         try {
             FileWriter issues_file = new FileWriter(issues_file_loc);
@@ -67,24 +70,36 @@ public class ExportIssuesToCsv {
 
             while (true) {
                 current_page++;
-                JSONObject resp = GetIssues(domain, api_key, current_page);
+                JSONObject resp = GetIssues(domain, api_key, current_page, created_since);
                 if (resp.getInt("total-pages") < current_page) {
-                    System.out.println("Export completed. Total number of pages: " + (current_page - 1));
+                    System.out.println("Export completed. Total number of API calls: " + (current_page - 1));
                     break;
                 }
 
                 /*
                 * The response will contain issue details in nested json structure.
                 * Below code will flatten the structure by extracting fields as required.
+                * It will also flatten the tags array into a string for better readability.
                 * The json keys are the names of columns in the output issue CSV file.
                 * */
 
                 JSONArray issues = resp.getJSONArray("issues");
                 for (int i = 0 ; i < issues.length() ; i++) {
+
                     JSONObject issue = issues.getJSONObject(i);
                     JSONObject state_data = issue.getJSONObject("state_data");
+
+                    JSONArray tags_array = issue.getJSONArray("tags");
+                    StringBuilder tags = new StringBuilder("");
+                    for (int k = 0 ; k < tags_array.length() ; k++) {
+                        tags = tags.append(tags_array.getString(k)).append(",");
+                    }
+                    if (tags.length() > 0)
+                        tags.deleteCharAt(tags.length() - 1);
+
                     issues.getJSONObject(i).put("state",  state_data.get("state"));
                     issues.getJSONObject(i).put("changed_at",  state_data.get("changed_at"));
+                    issues.getJSONObject(i).put("tags", tags);
 
                     /*
                     * Destructuring message json and renaming keys to columns of output message CSV file.
@@ -125,6 +140,7 @@ public class ExportIssuesToCsv {
         return;
     }
 
+
     public static void main(String args[]) {
         /*
         * POINTS TO NOTE:
@@ -132,15 +148,34 @@ public class ExportIssuesToCsv {
         - Each message row will have its corresponding issue id.
         - The API will fetch 1000 (maximum allowed) issues per call, as specified in the 'api_endpoint' above.
         - Total number of API calls is equal to the number of total pages in the responses.
+        - To limit the total size of response, the program takes number of days N as input.
+          Issues created in the last N days will be fetched. To get ALL issues, remove the parameter 'created_since'.
         - A few fields of the response json that may not be important have not been considered in this sample.
         - Please refer the documentation for the complete response structure.
          */
+
+        if (args.length != 1) {
+            System.out.println("Please enter number of days N. Issues created in the last N days will be retrieved.\n" +
+                    "Usage: java -cp <PATH TO JAR> com.helpshift.ExportIssuesToCsv <NO OF DAYS>");
+            System.exit(1);
+        }
+
+        Calendar c = Calendar.getInstance();
+        try {
+            int no_of_days = Integer.parseInt(args[0]);
+            c.add(Calendar.DATE, (-1 * no_of_days));
+        } catch (Exception e) {
+            System.out.println("Wrong value given for number of days = " + args[0]);
+            System.exit(2);
+        }
+        long created_since = c.getTimeInMillis();
+
         String domain = "<DOMAIN>";
         String api_key = "<API_KEY>";
         String issues_file_location = "<ISSUES_FILE_LOCATION>/issues.csv";
         String messages_file_location = "<MESSAGES_FILE_LOCATION>/messages.csv";
 
         ExportIssuesToCsv exportIssuesToCsv = new ExportIssuesToCsv();
-        exportIssuesToCsv.getAndSaveToCsv(domain, api_key, issues_file_location, messages_file_location);
+        exportIssuesToCsv.getAndSaveToCsv(domain, api_key, issues_file_location, messages_file_location, created_since);
     }
 }

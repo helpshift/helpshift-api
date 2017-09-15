@@ -11,8 +11,8 @@ add message with attachment and export API response to csv files in Java.
 2. Retrieve your [Helsphift API key](https://success.helpshift.com/a/success-center/?p=web&s=premium-features&f=managing-your-api-keys).
 
 3. Replace the placeholder values in [CreateIssueWithAttachment.java](src/main/java/com/helpshift/CreateIssueWithAttachment.java),
-    [AddMessageWithAttachment](src/main/java/com/helpshift/AddMessageWithAttachment.java) and
-    [ExportIssuesToCsv](src/main/java/com/helpshift/ExportIssuesToCsv.java).
+    [AddMessageWithAttachment.java](src/main/java/com/helpshift/AddMessageWithAttachment.java) and
+    [ExportIssuesToCsv.java](src/main/java/com/helpshift/ExportIssuesToCsv.java).
    - Replace the sample attachment's path with the path of an attachment you want to upload.
    - Replace the paths for issue and message csv files.
    - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/)
@@ -33,7 +33,7 @@ add message with attachment and export API response to csv files in Java.
    java -cp target/api-sample-code-1.0.0-jar-with-dependencies.jar com.helpshift.AddMessageWithAttachment <ISSUE_ID>
    ```
 
-7. Export all issues and messages to CSV files using following command.
+7. Export all issues and messages created in last given number of days to CSV files using following command.
       ```
-      java -cp target/api-sample-code-1.0.0-jar-with-dependencies.jar com.helpshift.ExportIssuesToCsv
+      java -cp target/api-sample-code-1.0.0-jar-with-dependencies.jar com.helpshift.ExportIssuesToCsv <NO_OF_DAYS>
       ```

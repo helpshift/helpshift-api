@@ -31,7 +31,7 @@ add message with attachment, and export API response to csv files in Python.
    python add_message_with_attachment.py <ISSUE_ID>
    ```
 
-7. Export all issues and messages into separate files using following command.
+7. Export all issues and messages created in the last given number of days into separate files using following command.
    ```
-   python export_issues_to_csv.py
+   python export_issues_to_csv.py <NO_OF_DAYS>
    ```
