@@ -1,5 +1,7 @@
 import requests
 import csv
+import sys
+import datetime
 
 
 DOMAIN = "<DOMAIN>"
@@ -14,13 +16,31 @@ POINTS TO NOTE:
 - Each message row will have its corresponding issue id.
 - The API will fetch 1000 (maximum allowed) issues per call, as specified in the 'api_endpoint' below.
 - Total number of API calls is equal to the number of total pages in the responses.
+- To limit the total size of response, the program takes number of days N as input.
+  Issues created in the last N days will be fetched. To get ALL issues, remove the parameter 'created_since'.
 - A few fields of the response json that may not be important have not been considered in this sample.
 - Please refer the documentation for the complete response structure.
 '''
 
 if __name__ == "__main__":
 
-    api_endpoint = "https://api.helpshift.com/v1/" + DOMAIN + "/issues?page-size=1000&"
+    if len(sys.argv) != 2:
+        print "Please enter number of days N. Issues created in the last N days will be retrieved.\n" \
+              "Usage: python export_issues_to_csv.py <NO OF DAYS>"
+        exit(1)
+
+    timestamp_in_ms = 0
+
+    try:
+        N = int(sys.argv[1])
+        timestamp_in_secs = (datetime.date.today() - datetime.timedelta(days=N)).strftime("%s")
+        timestamp_in_ms = long(timestamp_in_secs) * 1000
+    except ValueError as ve:
+        print "Wrong value given for number of days = " + sys.argv[1]
+        exit(2)
+
+    api_endpoint = "https://api.helpshift.com/v1/" + DOMAIN + "/issues?page-size=1000&created_since=" + \
+                   str(timestamp_in_ms) + "&"
 
     '''
     Example API with some filters:
@@ -53,13 +73,14 @@ if __name__ == "__main__":
 
             resp = response.json()
             if resp['total-pages'] < current_page:
-                print ("Export completed. Total number of pages: " + str(current_page - 1))
+                print ("Export completed. Total number of API calls: " + str(current_page - 1))
                 break
 
             for issue in resp['issues']:
                 try:
                     '''
-                    Certain string fields that may contain non-ASCII characters have to be explicitly encoded for csv writer
+                    Certain string fields that may contain non-ASCII characters
+                    have to be explicitly encoded for csv writer
                     '''
                     assignee_name = issue['assignee_name'].encode("utf-8") if issue['assignee_name'] else ""
                     issue_writer.writerow(dict(issue,
