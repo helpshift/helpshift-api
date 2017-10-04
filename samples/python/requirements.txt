@@ -1,1 +1,4 @@
+arrow
+click
 requests
+unicodecsv

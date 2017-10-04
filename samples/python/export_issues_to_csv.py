@@ -1,60 +1,65 @@
-import requests
-import csv
-import sys
-import datetime
+#!/usr/bin/env python
 
+"""
+Usage:
 
-DOMAIN = "<DOMAIN>"
-API_KEY = "<API_KEY>"
-ISSUES_FILE_LOC = "<ISSUES_FILE_LOCATION>/issues.csv"
-MESSAGES_FILE_LOC = "<MESSAGES_FILE_LOCATION>/messages.csv"
+    pip install -r requirements.txt
+    python export_issues_to_csv.py
 
+Notes:
 
-'''
-POINTS TO NOTE:
 - Messages are exported to a different file for ease of access.
 - Each message row will have its corresponding issue id.
-- The API will fetch 1000 (maximum allowed) issues per call, as specified in the 'api_endpoint' below.
+- The API will fetch 1000 (maximum allowed) issues per call, as specified in the "api_endpoint" below.
 - Total number of API calls is equal to the number of total pages in the responses.
 - To limit the total size of response, the program takes number of days N as input.
-  Issues created in the last N days will be fetched. To get ALL issues, remove the parameter 'created_since'.
+  Issues created in the last N days will be fetched. To get ALL issues, remove the parameter "created_since".
 - A few fields of the response json that may not be important have not been considered in this sample.
 - Please refer the documentation for the complete response structure.
-'''
+"""
 
-if __name__ == "__main__":
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-    if len(sys.argv) != 2:
-        print "Please enter number of days N. Issues created in the last N days will be retrieved.\n" \
-              "Usage: python export_issues_to_csv.py <NO OF DAYS>"
-        exit(1)
+import os
 
-    timestamp_in_ms = 0
+import arrow
+import click
+import requests
+import unicodecsv as csv
 
-    try:
-        N = int(sys.argv[1])
-        timestamp_in_secs = (datetime.date.today() - datetime.timedelta(days=N)).strftime("%s")
-        timestamp_in_ms = long(timestamp_in_secs) * 1000
-    except ValueError as ve:
-        print "Wrong value given for number of days = " + sys.argv[1]
-        exit(2)
 
-    api_endpoint = "https://api.helpshift.com/v1/" + DOMAIN + "/issues?page-size=1000&created_since=" + \
-                   str(timestamp_in_ms) + "&"
+ISSUES_FILE_NAME = 'issues.csv'
+MESSAGES_FILE_NAME = 'messages.csv'
 
-    '''
-    Example API with some filters:
-        sort-by creation-time, issue state is new, response includes meta
-            "https://api.helpshift.com/v1/" + DOMAIN +
-            "/issues?sort-by=creation-time&state=%5B%22new%22%5D&includes=%5B%22meta%22%5D&page-size=1000&"
 
-    Please refer the documentation to add filters to GET /issues API as required.
-    '''
+@click.command()
+@click.option('--domain',
+              prompt='Domain',
+              help='The domain to fetch issues for')
+@click.option('--api-key',
+              prompt='API key',
+              help='The API key for the domain')
+@click.option('--days',
+              prompt='Number of days',
+              default=30,
+              type=int,
+              help='Last N days to fetch issues for')
+@click.option('--output-directory',
+              prompt=True,
+              default=os.getcwd,
+              type=click.Path(exists=True, dir_okay=True, file_okay=False, writable=True, resolve_path=True),
+              help='The directory under which we will store CSV files')
+def export_issues_to_csv(domain, api_key, days, output_directory):
+    timestamp_in_ms = arrow.utcnow().replace(days=-days).timestamp * 1000
 
-    with open(ISSUES_FILE_LOC, 'wb') as issues_file, open(MESSAGES_FILE_LOC, 'wb') as messages_file:
+    api_url = 'https://api.helpshift.com/v1/{}/issues'.format(domain)
 
-        issue_fieldnames = {'assignee_name', 'domain', 'title', 'tags', 'app_id', 'id', 'state', 'changed_at'}
-        message_fieldnames = {'issue_id', 'body', 'author', 'attachment'}
+    issues_path = os.path.join(output_directory, ISSUES_FILE_NAME)
+    messages_path = os.path.join(output_directory, MESSAGES_FILE_NAME)
+    with open(issues_path, 'wb') as issues_file, open(messages_path, 'wb') as messages_file:
+
+        issue_fieldnames = ['domain', 'app_id', 'state', 'changed_at', 'assignee_name', 'id', 'title', 'tags']
+        message_fieldnames = ['issue_id', 'author', 'body', 'attachment']
         issue_writer = csv.DictWriter(issues_file, fieldnames=issue_fieldnames, extrasaction='ignore', restval='')
         message_writer = csv.DictWriter(messages_file, fieldnames=message_fieldnames, extrasaction='ignore', restval='')
         issue_writer.writeheader()
@@ -62,40 +67,39 @@ if __name__ == "__main__":
         current_page = 0
 
         while True:
-
             current_page = current_page + 1
-            api_endpoint_with_pagination = api_endpoint + 'page=' + str(current_page)
-            response = requests.get(api_endpoint_with_pagination, auth=(API_KEY, ""))
 
-            if response.status_code != 200:
-                print "Something went wrong: " + str(response.json())
-                exit(1)
+            # See https://apidocs.helpshift.com/#!/Issues/get_issues for more parameters
+            api_params = {
+                'created_since': timestamp_in_ms,
+                'page-size': 1000,
+                'page': current_page,
+            }
 
-            resp = response.json()
-            if resp['total-pages'] < current_page:
-                print ("Export completed. Total number of API calls: " + str(current_page - 1))
+            raw_response = requests.get(api_url, params=api_params, auth=(api_key, ''))
+            raw_response.raise_for_status()
+            response = raw_response.json()
+            click.echo("Fetched page {}/{}".format(current_page, response['total-pages']))
+
+            for issue in response['issues']:
+                assignee_name = issue.get('assignee_name', '')
+                issue_writer.writerow(dict(issue,
+                                           assignee_name=assignee_name,
+                                           title=issue.get('title', ''),
+                                           state=issue['state_data']['state'],
+                                           tags='|'.join(issue['tags']),
+                                           changed_at=issue['state_data']['changed_at']))
+
+                for message in issue['messages']:
+                    message_writer.writerow(dict(issue_id=issue['id'],
+                                                 body=message['body'],
+                                                 author=message['author']['name'],
+                                                 attachment=message.get('attachment', {}).get('file_name')))
+
+            if response['total-pages'] == current_page:
+                click.echo('Export completed.')
                 break
 
-            for issue in resp['issues']:
-                try:
-                    '''
-                    Certain string fields that may contain non-ASCII characters
-                    have to be explicitly encoded for csv writer
-                    '''
-                    assignee_name = issue['assignee_name'].encode("utf-8") if issue['assignee_name'] else ""
-                    issue_writer.writerow(dict(issue,
-                                               assignee_name=assignee_name,
-                                               title=issue.get('title',"").encode("utf-8"),
-                                               state=issue['state_data']['state'],
-                                               tags=', '.join(issue['tags']),
-                                               changed_at=issue['state_data']['changed_at']))
 
-                    for message in issue['messages']:
-                        message_writer.writerow(dict(issue_id=issue['id'],
-                                                     body=message['body'].encode("utf-8"),
-                                                     author=message['author']['name'].encode("utf-8"),
-                                                     attachment=message.get('attachment', {}).get('file_name')))
-                except Exception as ee:
-                    print ("Exception for Issue ID: " + str(issue['id']))
-                    print (ee)
-                    pass
+if __name__ == '__main__':
+    export_issues_to_csv()
