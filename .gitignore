@@ -11,3 +11,4 @@ checkouts
 .hgignore
 .hg
 *.iml
+.DS_Store
