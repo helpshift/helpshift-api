@@ -1,7 +1,8 @@
 # Python Helpshift API Sample Code
 
 This projects contains the sample code for using Helpshift API to create an issue,
-add message with attachment, and export API response to csv files in Python.
+add message with attachment to an issue, create and retrieve issues with custom issue fields,
+and export API response to csv files in Python.
 
 ## Setup and Usage Instructions
 
@@ -16,7 +17,8 @@ add message with attachment, and export API response to csv files in Python.
 
 4. Replace DOMAIN, API_KEY, ATTACHMENT_FILE_PATH, TEST_PAYLOAD, ISSUE_FILE_LOCATION and MESSAGES_FILE_LOCATION, as required, in
    [create_issue_with_attachment.py](./create_issue_with_attachment.py) ,
-   [add_message_with_attachment.py](./add_message_with_attachment.py) and
+   [add_message_with_attachment.py](./add_message_with_attachment.py) ,
+   [issues_with_custom_issue_fields.py](./issues_with_custom_issue_fields.py) and
    [export_issues_to_csv.py](./export_issues_to_csv.py) with actual values.
    - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/)
    for API parameters.
@@ -31,11 +33,16 @@ add message with attachment, and export API response to csv files in Python.
    python add_message_with_attachment.py <ISSUE_ID>
    ```
 
-7. Export all issues and messages created in the last given number of days into separate files using following command.
+7. Create issues with custom issue fields and retrieve them using conditional filters.
+   ```
+   python issues_with_custom_issue_fields.py
+   ```
+
+
+8. Export all issues and messages created in the last given number of days into separate files using following command.
    ```
    python export_issues_to_csv.py <NO_OF_DAYS>
    ```
-
 8. Backfill Custom Issue Fields from Metadata.
    ```
    python backfill_custom_issue_fields.py
