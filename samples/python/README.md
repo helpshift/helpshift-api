@@ -35,3 +35,8 @@ add message with attachment, and export API response to csv files in Python.
    ```
    python export_issues_to_csv.py <NO_OF_DAYS>
    ```
+
+8. Backfill Custom Issue Fields from Metadata.
+   ```
+   python backfill_custom_issue_fields.py
+   ```
