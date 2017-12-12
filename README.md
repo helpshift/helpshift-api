@@ -25,6 +25,9 @@ This project provide the sample code for using [Helpshift API](https://apidocs.h
 4. Backfill Custom Issue Fields from Metadata.
     - [Python](samples/python/backfill_custom_issue_fields.py)
 
+5. Update Custom Issue Fields of multiple Issues.
+    - [Python](samples/python/update_multiple_issues.py)
+
 ## License
 
 ```

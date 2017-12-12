@@ -40,3 +40,8 @@ add message with attachment, and export API response to csv files in Python.
    ```
    python backfill_custom_issue_fields.py
    ```
+
+9. Update Custom Issue Fields of multiple Issues.
+   ```
+   python update_multiple_issues.py
+   ```
