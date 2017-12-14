@@ -30,7 +30,8 @@ import unicodecsv as csv
 
 ISSUES_FILE_NAME = 'issues.csv'
 MESSAGES_FILE_NAME = 'messages.csv'
-ISSUES_FIELD_NAMES = ['domain', 'app_id', 'state', 'changed_at', 'assignee_name', 'id', 'title', 'tags']
+ISSUES_FIELD_NAMES = ['domain', 'app_id', 'state', 'changed_at', 'assignee_name', 'id', 'title', 'tags',
+                      'inbound_messages_count,', 'outbound_messages_count']
 MESSAGE_FIELD_NAMES = ['issue_id', 'author', 'body', 'attachment']
 ISSUES_API_URL = 'https://api.helpshift.com/v1/{}/issues'
 
@@ -42,13 +43,26 @@ def fetch_issues(api_key, api_params, api_url, current_page):
     return raw_response.json()
 
 
+def count_inbound_and_outbound_messages(messages):
+    inbound_count, outbound_count = 0, 0
+    for message in messages:
+        if message['origin'] == 'end-user':
+            inbound_count += 1
+        elif message['origin'] == 'helpshift':
+            outbound_count += 1
+    return inbound_count, outbound_count
+
+
 def construct_issues_file_row(issue):
+    inbound_count, outbound_count = count_inbound_and_outbound_messages(issue['messages'])
     return dict(issue,
                 assignee_name=issue.get('assignee_name', ''),
                 title=issue.get('title', ''),
                 state=issue['state_data']['state'],
                 tags='|'.join(issue['tags']),
-                changed_at=issue['state_data']['changed_at'])
+                changed_at=issue['state_data']['changed_at'],
+                inbound_messages=inbound_count,
+                outbound_messages=outbound_count)
 
 
 def construct_messages_file_row(issue_id, message):
