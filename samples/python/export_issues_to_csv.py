@@ -16,6 +16,8 @@ Notes:
   Issues created in the last N days will be fetched. To get ALL issues, remove the parameter "created_since".
 - A few fields of the response json that may not be important have not been considered in this sample.
 - Please refer the documentation for the complete response structure.
+- Outbound Messages counts include agents and automation messages counts.
+- Inbound Messages counts just include end-user messages counts.
 """
 
 from __future__ import absolute_import, division, print_function, unicode_literals
