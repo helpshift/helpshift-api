@@ -13,6 +13,35 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
 
+/******
+
+ * Notes:
+
+ 1. The payloads used here assume that the following custom issue fields are present in the system.
+
+        Name of field       Type of field
+
+        1. item             dropdown
+        2. gift_wrapped     checkbox
+        3. order_id         singleline
+        4. billing_name     singleline
+        5. billing_address  multiline
+        6. order_date       date
+        7. quantity         number
+        8. customer_id      number
+
+ 2.
+ - Custom issue fields (CIFs) of all types have been considered in this example.
+ - This program allows a user to create and retrieve issues with CIFs.
+ - Create issues option will create issues having different values for each CIF.
+ - Please refer json file "src/main/resources/cif_payloads" for CIFs that are used for these issues.
+ - Get issues will retrieve issues depending on a variety of filter conditions.
+ - Please refer json file "src/main/resources/cif_filters" for details.
+ - All possible conditions on all types of CIFs have been used here.
+ - Please refer the API documentation for further details on how to use CIFs while creating or retrieving an issue.
+
+ ******/
+
 
 public class IssuesWithCustomIssueFields {
 
@@ -76,7 +105,7 @@ public class IssuesWithCustomIssueFields {
                 }
                 System.out.println("Enter the filter number to filter or any other number to quit: ");
                 int choice = Integer.parseInt(input.nextLine());
-                if (choice < 1 || choice > 9)
+                if (choice < 1 || choice > counter)
                     return;
 
                 // Do the GET call
@@ -124,7 +153,7 @@ public class IssuesWithCustomIssueFields {
 
         Scanner input = new Scanner(System.in);
         while (true) {
-            System.out.println("Type of Action:\t1. Create Issues\t2. Retrieve Issues\t3. Exit Program" +
+            System.out.print("\n\nType of Action:\t1. Create Issues\t2. Retrieve Issues\t3. Exit Program" +
                     "\nPlease enter your choice: ");
             try {
                 int choice = Integer.parseInt(input.nextLine());

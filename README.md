@@ -22,10 +22,14 @@ This project provide the sample code for using [Helpshift API](https://apidocs.h
     - [Java](samples/java/src/main/java/com/helpshift/ExportIssuesToCsv.java)
     - [Python](samples/python/export_issues_to_csv.py)
 
-4. Backfill Custom Issue Fields from Metadata.
+4. Create and Retrieve Issues with Custom Issue Fields
+    - [Java](samples/java/src/main/java/com/helpshift/IssuesWithCustomIssueFields.java)
+    - [Python](samples/python/issues_with_custom_issue_fields.py)
+
+5. Backfill Custom Issue Fields from Metadata.
     - [Python](samples/python/backfill_custom_issue_fields.py)
 
-5. Update Custom Issue Fields of multiple Issues.
+6. Update Custom Issue Fields of multiple Issues.
     - [Python](samples/python/update_multiple_issues.py)
 
 ## License
