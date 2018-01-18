@@ -1,7 +1,8 @@
 # Python Helpshift API Sample Code
 
 This projects contains the sample code for using Helpshift API to create an issue,
-add message with attachment, and export API response to csv files in Python.
+add message with attachment to an issue, create and retrieve issues with custom issue fields,
+and export API response to csv files in Python.
 
 ## Setup and Usage Instructions
 
@@ -18,24 +19,31 @@ add message with attachment, and export API response to csv files in Python.
    [create_issue_with_attachment.py](./create_issue_with_attachment.py) ,
    [add_message_with_attachment.py](./add_message_with_attachment.py) and
    [export_issues_to_csv.py](./export_issues_to_csv.py) with actual values.
-   - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/)
-   for API parameters.
+   - Note: Use GET /apps API to retrieve app_id. Refer to [Helsphift API documentation](https://apidocs.helpshift.com/) for API parameters.
 
-5. Create issue by using following command and note the issue_id.
+5. Please refer [custom_issue_field_payloads.py](./custom_issue_field_payloads.py) for a variety of payload structures
+   to create and retrieve issues with custom issue fields.
+
+6. Create issue by using following command and note the issue_id.
    ```
    python create_issue_with_attachment.py
    ```
 
-6. Add message to issue using following command. This script accepts an issue_id.
+7. Add message to issue using following command. This script accepts an issue_id.
    ```
    python add_message_with_attachment.py <ISSUE_ID>
    ```
 
-7. Export all issues and messages created in the last given number of days into separate files using following command.
+8. Create issues with custom issue fields and retrieve them using conditional filters.
+   ```
+   python issues_with_custom_issue_fields.py
+   ```
+
+
+9. Export all issues and messages created in the last given number of days into separate files using following command.
    ```
    python export_issues_to_csv.py <NO_OF_DAYS>
    ```
-
 8. Backfill Custom Issue Fields from Metadata.
    ```
    python backfill_custom_issue_fields.py
