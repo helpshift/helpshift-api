@@ -31,7 +31,7 @@ while True:
     data = response.json()
 
     # All the issues for the given query
-    issues = (data['issues'])
+    issues = data['issues']
 
     # Result returned no issues.
     if not issues:
