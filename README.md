@@ -32,6 +32,9 @@ This project provide the sample code for using [Helpshift API](https://apidocs.h
 6. Update Custom Issue Fields of multiple Issues.
     - [Python](samples/python/update_multiple_issues.py)
 
+7. Update multiple issues using Bulk Edit API.
+   - [Python](samples/python/bulk_edit_issues.py)
+
 ## License
 
 ```

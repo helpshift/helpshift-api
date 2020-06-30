@@ -53,3 +53,8 @@ and export API response to csv files in Python.
    ```
    python update_multiple_issues.py
    ```
+
+10. Update multiple issues using Bulk Edit API
+   ```
+   python bulk_edit_issues.py
+   ```
