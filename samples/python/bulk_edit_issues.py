@@ -1,11 +1,13 @@
 import requests
 import json
+import csv
 
 DOMAIN = "<DOMAIN>"
 API_KEY = "<api-key>"
 ENDPOINT = "https://api.helpshift.com/v1/" + DOMAIN + "/issues"
 
 PAGE_SIZE = 1000 #max value
+BULK_CHUNK = 5000 #max value
 
 # Add to `api_params` to edit issues as per your requirement.
 
@@ -50,6 +52,28 @@ def process_issues_from_get_api():
             break
 
         CURRENT_PAGE += 1
+
+
+# Expects:
+# I. CSV delimited by comma ","
+# II. Issue publish IDs to be part of the first column in the CSV
+# Example:
+# 1, .....
+# 2, .....
+# 3, .....
+
+# use process_issues_from_csv(<absolute file path>)
+
+def process_issues_from_csv(csv_path):
+    issue_ids = []
+    with open(file_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            issue_ids.append(row[0])
+    issue_chunks = [issue_list[i:i + BULK_CHUNK] for i in range(0, len(issue_list), BULK_CHUNK)]
+    for issue_chunk in issue_chunks:
+        bulk_edit_issue(issue_chunk)
+    print ("Done")
 
 
 # By default queries from GET API and performs bulk action
