@@ -1,47 +1,57 @@
 import requests
 import json
 
-page_size = 1000 #max value
-page = 0
-api_key = "<api-key>"
-endpoint = "https://api.helpshift.com/v1/<domain>/issues"
+DOMAIN = "<DOMAIN>"
+API_KEY = "<api-key>"
+ENDPOINT = "https://api.helpshift.com/v1/" + DOMAIN + "/issues"
+
+PAGE_SIZE = 1000 #max value
+
+# Add to `api_params` to edit issues as per your requirement.
 
 def bulk_edit_issue(issues):
-    print ("Triggering Bulk Action for " + str(len(issues)) + " issues")
-    api_params = {"issue-ids": json.dumps([issue['id'] for issue in issues]),
-                  "status": "Resolved",
-                  "message-body": "Your order will reach you soon!"}
-    response = requests.put(endpoint,
-                            params=api_params,
-                            auth=(api_key, ""))
+    print ("Triggering Bulk Action for %d issues starting with id %s and ends with id %d" %((len(issues)), issues[0], issues[-1]))
+    api_params = "/?issue-ids=" + json.dumps(issues) + "&status=Resolved" #example
+    response = requests.put((ENDPOINT + api_params), auth=(API_KEY, ""))
     response.raise_for_status()
 
 
-while True:
-    page += 1
-    api_params = {"sort-by": "creation-time",
-                  "sort-order": "asc",
-                  "page-size": page_size,
-                  "page": page}
-    response = requests.get(endpoint,
-                            params = api_params,
-                            auth = (api_key, ""))
-    # Fail fast
-    response.raise_for_status()
-    data = response.json()
+# Query from GET /issues API
+# Add to `api_params` to get issues to match filters of your choice.
 
-    # All the issues for the given query
-    issues = data['issues']
+def process_issues_from_get_api():
+    CURRENT_PAGE = 1
+    while True:
+        api_params = {"sort-by": "creation-time",
+                      "sort-order": "asc",
+                      "page-size": PAGE_SIZE,
+                      "page": CURRENT_PAGE}
+        response = requests.get(ENDPOINT,
+                                params = api_params,
+                                auth = (API_KEY, ""))
+        # Fail fast
+        response.raise_for_status()
+        data = response.json()
 
-    # Result returned no issues.
-    if not issues:
-        print("No matching issues. Done")
-        break
+        # All the issues for the given query
+        issues = (data['issues'])
 
-    bulk_edit_issue(issues)
+        # Result returned no issues.
+        if not issues:
+            print("No matching issues. Done")
+            break
 
-    #This is perhaps the last chunk of issues since
-    #the count is less than the requested page size
-    if len(issues) < page_size:
-       print('Processed last chunk')
-       break
+        bulk_edit_issue([issue['id'] for issue in issues])
+
+        #This is perhaps the last chunk of issues since
+        #the count is less than the requested page size
+        if len(issues) < PAGE_SIZE:
+            print('Processed last chunk')
+            break
+
+        CURRENT_PAGE += 1
+
+
+# By default queries from GET API and performs bulk action
+if __name__ == "__main__":
+    process_issues_from_get_api()
