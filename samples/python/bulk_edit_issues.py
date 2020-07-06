@@ -1,6 +1,7 @@
 import requests
 import json
 import csv
+import base64
 
 DOMAIN = "<DOMAIN>"
 API_KEY = "<api-key>"
@@ -13,9 +14,19 @@ BULK_CHUNK = 5000 #max value
 
 def bulk_edit_issue(issues):
     print ("Triggering Bulk Action for %d issues starting with id %s and ends with id %d" %((len(issues)), issues[0], issues[-1]))
-    api_params = "/?issue-ids=" + json.dumps(issues) + "&status=Resolved" #example
-    response = requests.put((ENDPOINT + api_params), auth=(API_KEY, ""))
+    api_params = {"issue-ids" : json.dumps(issues),
+                  "message-body" : "Your order will reach you shortly!", #example
+                  "status" : "Resolved"} #example
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(API_KEY+':'),
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    response = requests.put(ENDPOINT,
+                            headers = headers,
+                            data = api_params)
     response.raise_for_status()
+    # closing the connection
+    response.close()
 
 
 # Query from GET /issues API
@@ -36,7 +47,7 @@ def process_issues_from_get_api():
         data = response.json()
 
         # All the issues for the given query
-        issues = (data['issues'])
+        issues = data['issues']
 
         # Result returned no issues.
         if not issues:
